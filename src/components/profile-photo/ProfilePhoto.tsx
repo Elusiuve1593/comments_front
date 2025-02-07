@@ -11,7 +11,7 @@ import { AppDispatch, RootState } from "../../redux/store";
 
 export const ProfilePhoto = () => {
   const image: string | null | undefined = useAppSelector(
-    (state: RootState) => state.profile.image
+    (state: RootState) => state.profile.avatar
   );
   const dispatch = useDispatch<AppDispatch>();
 

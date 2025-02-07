@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 
 export const style = {
   borderRadius: "10px",
-  background: "#333",
+  background: "#6168",
   color: "#fff",
   fontSize: "16px",
 };

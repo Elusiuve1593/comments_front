@@ -51,13 +51,7 @@ export const uploadImageThunk = createAsyncThunk<
       }
     );
 
-    const id = localStorage.getItem("id");
-    const img = await axiosInstance.patch(
-      `${import.meta.env.VITE_API_URL}/profile/${id}`,
-      { image: res.data.url }
-    );
-
-    dispatch(updatePhoto({ photoUrl: img.data }));
+    dispatch(updatePhoto({ photoUrl: res.data.url }));
   } catch (err: any) {
     handleAxiosError(err, rejectWithValue);
   } finally {

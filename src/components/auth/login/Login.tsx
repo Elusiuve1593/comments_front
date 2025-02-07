@@ -34,7 +34,7 @@ export const Login = () => {
     const res = await dispatch(loginThunk(data));
 
     if (loginThunk.fulfilled.match(res)) {
-      navigate("/profile");
+      navigate("/");
     }
   };
 

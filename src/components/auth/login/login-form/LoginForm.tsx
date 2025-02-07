@@ -64,11 +64,6 @@ export const LoginForm = memo(
         </FormControl>
 
         <AuthButton isValid={isValid} text={"Login"} />
-        <AccountButton
-          text={"Do not have an account?"}
-          direction={"/sign-up"}
-          page={"Sign Up"}
-        />
       </form>
     );
   }

@@ -12,7 +12,6 @@ export const Logout = () => {
 
   const logout = async () => {
     const res = await dispatch(logoutThunk());
-
     if (logoutThunk.fulfilled.match(res)) {
       navigate("/");
     }

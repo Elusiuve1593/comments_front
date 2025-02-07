@@ -15,7 +15,7 @@ export const logoutThunk = createAsyncThunk(
   async (_, { dispatch, rejectWithValue }) => {
     try {
       dispatch(isLoading({ setPreloading: true }));
-      const res = await axiosInstance.get<LogoutInfo>(
+      const res = await axiosInstance.post<LogoutInfo>(
         `${import.meta.env.VITE_API_URL}/auth/logout`
       );
       toast.success(res.data.message, { style });

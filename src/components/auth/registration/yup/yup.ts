@@ -1,7 +1,7 @@
 import * as yup from "yup";
 
 export const schema = yup.object().shape({
-  user_name: yup
+  username: yup
     .string()
     .required("Fill the field!")
     .max(10, "First name must be at most 10 characters"),

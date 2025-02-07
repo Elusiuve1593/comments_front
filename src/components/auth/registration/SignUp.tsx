@@ -7,12 +7,13 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { loginThunk } from "../../../redux/slices/auth/sign-in/operations";
 import { signUpThunk } from "../../../redux/slices/auth/sign-up/operations";
-import { AppDispatch } from "../../../redux/store";
+import { AppDispatch, RootState } from "../../../redux/store";
 import { SignUpForm } from "./sign-up-form/SignUpForm";
 import { schema } from "./yup/yup";
+import { useAppSelector } from "../../../redux/redux-hooks";
 
 export interface SignUpFormInterface {
-  user_name: string;
+  username: string;
   email: string;
   password: string;
 }
@@ -21,6 +22,9 @@ export const SignUp = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const [blind, setBlind] = useState<boolean>(true);
+  const avatar: string | null | undefined = useAppSelector(
+    (state: RootState) => state.profile.avatar
+  );
 
   const {
     register,
@@ -32,11 +36,14 @@ export const SignUp = () => {
   });
 
   const onSubmit: SubmitHandler<SignUpFormInterface> = async (data) => {
-    const res = await dispatch(signUpThunk(data));
+    const payload = {
+      ...data,
+      avatar: avatar ? avatar : " ",
+    };
+    const res = await dispatch(signUpThunk(payload));
     if (signUpThunk.fulfilled.match(res)) {
       const { email, password } = data;
       const res = await dispatch(loginThunk({ email, password }));
-
       if (loginThunk.fulfilled.match(res)) {
         navigate("/");
       }

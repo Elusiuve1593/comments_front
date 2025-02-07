@@ -1,3 +1,9 @@
+import FormControl from "@mui/material/FormControl";
+import FormHelperText from "@mui/material/FormHelperText";
+import Input from "@mui/material/Input";
+import InputLabel from "@mui/material/InputLabel";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 import { memo } from "react";
 import {
   FieldErrors,
@@ -5,17 +11,10 @@ import {
   UseFormHandleSubmit,
   UseFormRegister,
 } from "react-hook-form";
-import { SignUpFormInterface } from "../SignUp";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
-import Input from "@mui/material/Input";
-import InputLabel from "@mui/material/InputLabel";
-import FormControl from "@mui/material/FormControl";
-import FormHelperText from "@mui/material/FormHelperText";
-import { BlindButton } from "../../../../common/components/BlindButton";
 import { AuthButton } from "../../../../common/components/AuthButton";
-import { AccountButton } from "../../../../common/components/AccountButton";
+import { BlindButton } from "../../../../common/components/BlindButton";
 import { ProfilePhoto } from "../../../profile-photo/ProfilePhoto";
+import { SignUpFormInterface } from "../SignUp";
 
 interface SignUpFormProps {
   register: UseFormRegister<SignUpFormInterface>;
@@ -42,16 +41,14 @@ export const SignUpForm = memo(
         <Typography variant="h4" sx={{ marginBottom: 3 }} gutterBottom>
           Sign up
         </Typography>
-        
         <ProfilePhoto />
-
         <FormControl fullWidth sx={{ marginBottom: 2 }}>
           <TextField
-            {...register("user_name")}
+            {...register("username")}
             label="First name"
             type="text"
-            error={!!errors.user_name}
-            helperText={errors.user_name?.message}
+            error={!!errors.username}
+            helperText={errors.username?.message}
           />
         </FormControl>
 
@@ -76,9 +73,7 @@ export const SignUpForm = memo(
           <FormHelperText error>{errors.password?.message}</FormHelperText>
         </FormControl>
 
-
         <AuthButton isValid={isValid} text={"Sign up"} />
-    
       </form>
     );
   }

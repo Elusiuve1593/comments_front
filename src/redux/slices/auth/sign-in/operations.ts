@@ -9,7 +9,7 @@ import axiosInstance from "../../../axios-interceptor";
 
 interface TokenInfo {
   id: number;
-  access_token: string;
+  token: string;
 }
 
 export const loginThunk = createAsyncThunk<
@@ -25,9 +25,8 @@ export const loginThunk = createAsyncThunk<
       `${import.meta.env.VITE_API_URL}/auth/sign-in`,
       param
     );
-    localStorage.setItem("id", res.data.id.toString());
     toast.success("Login is successfully!", { style });
-    dispatch(enableAccess({ access_token: res.data.access_token }));
+    dispatch(enableAccess({ token: res.data.token }));
   } catch (err: any) {
     return handleAxiosError(err, rejectWithValue);
   } finally {

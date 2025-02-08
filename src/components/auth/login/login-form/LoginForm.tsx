@@ -11,10 +11,9 @@ import {
   UseFormHandleSubmit,
   UseFormRegister,
 } from "react-hook-form";
-import { LoginFormInterface } from "../Login";
-import { BlindButton } from "../../../../common/components/BlindButton";
 import { AuthButton } from "../../../../common/components/AuthButton";
-import { AccountButton } from "../../../../common/components/AccountButton";
+import { BlindButton } from "../../../../common/components/BlindButton";
+import { LoginFormInterface } from "../Login";
 
 interface LoginFormProps {
   register: UseFormRegister<LoginFormInterface>;

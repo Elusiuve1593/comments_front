@@ -1,7 +1,7 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +11,7 @@ import { AppDispatch, RootState } from "../../../redux/store";
 import { SignUpForm } from "./sign-up-form/SignUpForm";
 import { schema } from "./yup/yup";
 import { useAppSelector } from "../../../redux/redux-hooks";
+import { fetchProfileThunk } from "../../../redux/slices/user/operations";
 
 export interface SignUpFormInterface {
   username: string;
@@ -44,6 +45,7 @@ export const SignUp = () => {
     if (signUpThunk.fulfilled.match(res)) {
       const { email, password } = data;
       const res = await dispatch(loginThunk({ email, password }));
+      await dispatch(fetchProfileThunk());
       if (loginThunk.fulfilled.match(res)) {
         navigate("/");
       }
@@ -51,8 +53,8 @@ export const SignUp = () => {
   };
   return (
     <Grid container justifyContent="center">
-      <Grid item xs={12} sm={10} md={4.5}>
-        <Paper elevation={3} sx={{ padding: 3, borderRadius: 0 }}>
+      <Grid item xs={12} sm={10} md={4.5} margin={7}>
+        <Paper elevation={3} sx={{ padding: 2, borderRadius: 0 }}>
           <SignUpForm
             register={register}
             handleSubmit={handleSubmit}

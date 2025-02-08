@@ -1,15 +1,24 @@
 import { AppBar, Box, Button, Toolbar, Typography } from "@mui/material";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { RootState } from "../../redux/store";
+import { AppDispatch, RootState } from "../../redux/store";
 import { Logout } from "../auth/logout/Logout";
+import HomeIcon from "@mui/icons-material/Home";
+import { useEffect } from "react";
+import { fetchProfileThunk } from "../../redux/slices/user/operations";
 
 export const Header = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const isAuth: boolean = useSelector(
     (state: RootState) => state.auth.isAuthenticated
   );
-
+  const username = useSelector((state: RootState) => state.profile.username);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    dispatch(fetchProfileThunk());
+  }, []);
+
   return (
     <AppBar
       position="fixed"
@@ -39,13 +48,28 @@ export const Header = () => {
             backgroundColor: isAuth ? "#58ec02c8" : "#3b8d0cc7",
           }}
         />
-        
+        {isAuth ? (
+          <Typography variant="h6" color="inherit" sx={{ marginLeft: "1%" }}>
+            {username}
+          </Typography>
+        ) : null}
         <Box sx={{ flexGrow: 1, textAlign: "center" }}>
           <Typography variant="h6" color="inherit">
-            COMMENTS APP
+            <div>COMMENTS</div>
           </Typography>
         </Box>
-
+        <Box
+          sx={{
+            flexGrow: 0,
+            textAlign: "center",
+            marginRight: "2%",
+            cursor: "pointer",
+          }}
+        >
+          <span onClick={() => navigate("/")}>
+            <HomeIcon />
+          </span>
+        </Box>
         <Box
           sx={{
             display: "flex",
@@ -59,11 +83,11 @@ export const Header = () => {
           ) : (
             <>
               <Button color="inherit" onClick={() => navigate("/sign-in")}>
-                Login
+                Sign In
               </Button>
               /
               <Button color="inherit" onClick={() => navigate("/sign-up")}>
-                Register
+                Sign Up
               </Button>
             </>
           )}

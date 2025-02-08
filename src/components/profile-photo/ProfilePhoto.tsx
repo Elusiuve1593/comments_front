@@ -4,10 +4,10 @@ import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { useAppSelector } from "../../redux/redux-hooks";
-import { PhotoButtons } from "./photo-buttons/PhotoButtons";
-import { PhotoAvatar } from "./photo-avatar/PhotoAvatar";
 import { uploadImageThunk } from "../../redux/slices/img/operations";
 import { AppDispatch, RootState } from "../../redux/store";
+import { PhotoAvatar } from "./photo-avatar/PhotoAvatar";
+import { PhotoButtons } from "./photo-buttons/PhotoButtons";
 
 export const ProfilePhoto = () => {
   const image: string | null | undefined = useAppSelector(
@@ -34,7 +34,7 @@ export const ProfilePhoto = () => {
       toast("Choose a photo, please", {
         icon: <InfoOutlinedIcon />,
         style: {
-          background: "#f1ee8e",
+          background: "#6168",
         },
       });
     }

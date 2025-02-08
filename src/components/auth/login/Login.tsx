@@ -11,6 +11,7 @@ import { schema } from "./yup/yup";
 import Paper from "@mui/material/Paper";
 
 import { LoginForm } from "./login-form/LoginForm";
+import { fetchProfileThunk } from "../../../redux/slices/user/operations";
 
 export interface LoginFormInterface {
   email: string;
@@ -32,7 +33,7 @@ export const Login = () => {
 
   const onSubmit: SubmitHandler<LoginFormInterface> = async (data) => {
     const res = await dispatch(loginThunk(data));
-
+    await dispatch(fetchProfileThunk());
     if (loginThunk.fulfilled.match(res)) {
       navigate("/");
     }

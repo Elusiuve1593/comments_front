@@ -2,23 +2,16 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import toast from "react-hot-toast";
 import { handleAxiosError } from "../../../../common/errors-handler/errors-handler";
 import { style } from "../../../../common/styles/styles";
-import { LoginFormInterface } from "../../../../components/auth/login/Login";
+import axiosInstance from "../../../axios-interceptor";
 import { isLoading } from "../../preloader/slice";
 import { enableAccess } from "../authentication/slice";
-import axiosInstance from "../../../axios-interceptor";
 
 interface TokenInfo {
   id: number;
   token: string;
 }
 
-export const loginThunk = createAsyncThunk<
-  void,
-  LoginFormInterface,
-  {
-    rejectValue: string;
-  }
->("login/loginThunk", async (param, { dispatch, rejectWithValue }) => {
+export const loginThunk = createAsyncThunk<any, any>("login/loginThunk", async (param, { dispatch, rejectWithValue }) => {
   try {
     dispatch(isLoading({ setPreloading: true }));
     const res = await axiosInstance.post<TokenInfo>(

@@ -60,14 +60,13 @@ export const HomePage = () => {
   useEffect(() => {
     const fetchData = async () => {
       const res = await dispatch(
-        fetchCommentsThunk({ page: currentPage, limit: 4 })
+        fetchCommentsThunk({ page: currentPage, limit: 5 })
       );
       if (res.payload) {
         //@ts-ignore
         setTotalPages(res.payload.data.totalPages);
       }
     };
-
     fetchData();
   }, [currentPage, dispatch]);
 
@@ -80,21 +79,35 @@ export const HomePage = () => {
 
   const onSubmit = (data: { text: string }) => {
     if (editId !== null) {
-      dispatch(editCommentThunk({ id: editId, text: data.text })).then(() => {
-        const updatedComments = { ...editedComments, [editId]: true };
-        setEditedComments(updatedComments);
-        localStorage.setItem("editedComments", JSON.stringify(updatedComments));
-        dispatch(fetchCommentsThunk({ page: currentPage, limit: 25 }));
-        setIsFormOpen(false);
+      dispatch(editCommentThunk({ id: editId, text: data.text }))
+        .then(() =>
+          dispatch(fetchCommentsThunk({ page: currentPage, limit: 5 }))
+        )
+        .then((res) => {
+          //@ts-ignore
+          setTotalPages(res.payload.data.totalPages);
+        });
+
+      
+      setEditedComments((prev) => {
+        const updated = { ...prev, [editId]: true };
+        localStorage.setItem("editedComments", JSON.stringify(updated));
+        return updated;
       });
+
       setEditId(null);
     } else {
-      dispatch(commentThunk(data)).then(() => {
-        dispatch(fetchCommentsThunk({ page: currentPage, limit: 25 }));
-        setIsFormOpen(false);
-      });
+      dispatch(commentThunk(data))
+        .then(() =>
+          dispatch(fetchCommentsThunk({ page: currentPage, limit: 5 }))
+        )
+        .then((res) => {
+          //@ts-ignore
+          setTotalPages(res.payload.data.totalPages);
+        });
     }
     reset();
+    setIsFormOpen(false);
   };
 
   const onEdit = (id: number | null, text: string) => {
@@ -103,9 +116,16 @@ export const HomePage = () => {
   };
 
   const onDelete = (id: number) => {
-    dispatch(deleteCommentThunk(id)).then(() =>
-      dispatch(fetchCommentsThunk({ page: currentPage, limit: 25 }))
-    );
+    dispatch(deleteCommentThunk(id))
+      .then(() => dispatch(fetchCommentsThunk({ page: currentPage, limit: 5 })))
+      .then((res) => {
+        //@ts-ignore
+        const newTotalPages = res.payload.data.totalPages;
+        setTotalPages(newTotalPages);
+        if (currentPage > newTotalPages) {
+          setCurrentPage(newTotalPages);
+        }
+      });
     setDeleteId(null);
   };
 
@@ -293,54 +313,56 @@ export const HomePage = () => {
           );
         })}
 
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          marginTop: 3,
-          gap: 2,
-        }}
-      >
-        <Button
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
+      {comments && comments.length > 0 && (
+        <Box
           sx={{
-            padding: "6px 12px",
-            fontWeight: "bold",
-            textTransform: "none",
-            borderRadius: 2,
-            backgroundColor: currentPage === 1 ? "grey.300" : "primary.main",
-            color: currentPage === 1 ? "text.secondary" : "white",
-            "&:hover": {
-              backgroundColor: "primary.dark",
-            },
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop: 3,
+            gap: 2,
           }}
         >
-          Previous
-        </Button>
-        <Typography sx={{ fontSize: "1rem", fontWeight: "500" }}>
-          Page {currentPage} of {totalPages}
-        </Typography>
-        <Button
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          sx={{
-            padding: "6px 12px",
-            fontWeight: "bold",
-            textTransform: "none",
-            borderRadius: 2,
-            backgroundColor:
-              currentPage === totalPages ? "grey.300" : "primary.main",
-            color: currentPage === totalPages ? "text.secondary" : "white",
-            "&:hover": {
-              backgroundColor: "primary.dark",
-            },
-          }}
-        >
-          Next
-        </Button>
-      </Box>
+          <Button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            sx={{
+              padding: "6px 12px",
+              fontWeight: "bold",
+              textTransform: "none",
+              borderRadius: 2,
+              backgroundColor: currentPage === 1 ? "grey.300" : "primary.main",
+              color: currentPage === 1 ? "text.secondary" : "white",
+              "&:hover": {
+                backgroundColor: "primary.dark",
+              },
+            }}
+          >
+            Prev
+          </Button>
+          <Typography sx={{ fontSize: "1rem", fontWeight: "500" }}>
+            Page {currentPage} of {totalPages}
+          </Typography>
+          <Button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            sx={{
+              padding: "6px 12px",
+              fontWeight: "bold",
+              textTransform: "none",
+              borderRadius: 2,
+              backgroundColor:
+                currentPage === totalPages ? "grey.300" : "primary.main",
+              color: currentPage === totalPages ? "text.secondary" : "white",
+              "&:hover": {
+                backgroundColor: "primary.dark",
+              },
+            }}
+          >
+            Next
+          </Button>
+        </Box>
+      )}
 
       <Dialog open={deleteId !== null} onClose={() => setDeleteId(null)}>
         <DialogTitle>Are you sure you want to delete this comment?</DialogTitle>

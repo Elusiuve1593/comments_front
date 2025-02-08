@@ -19,7 +19,16 @@ export const Logout = () => {
 
   return (
     <Box textAlign={"end"}>
-      <Button variant="contained" color="error" onClick={logout} size="medium">
+      <Button
+        sx={{
+          padding: "4px 4px",
+          minWidth: "45px",
+        }}
+        variant="contained"
+        color="error"
+        onClick={logout}
+        size="small"
+      >
         <ExitToAppIcon />
       </Button>
     </Box>

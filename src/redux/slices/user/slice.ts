@@ -44,6 +44,7 @@ const profileSlice = createSlice({
       state.comments.push(action.payload.data);
     },
     editComment(state, action: PayloadAction<{ data: Comment }>) {
+      console.log(action.payload.data)
       state.comments = state.comments.map((el: Comment) =>
         el.id === action.payload.data.id
           ? { ...el, ...action.payload.data }

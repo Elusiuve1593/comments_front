@@ -14,6 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import { format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,26 +23,27 @@ import {
   deleteCommentThunk,
   editCommentThunk,
   fetchCommentsThunk,
-  fetchProfileThunk,
 } from "../../redux/slices/user/operations";
 import { AppDispatch, RootState } from "../../redux/store";
 import { commentSchema } from "./yup/yup";
-import { style } from "../../common/styles/styles";
-import toast from "react-hot-toast";
-import { toZonedTime } from "date-fns-tz";
 
 export const HomePage = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const [isFormOpen, setIsFormOpen] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const isAuth = useSelector((state: RootState) => state.auth.isAuthenticated);
-  const comments = useSelector((state: RootState) => {
-    //@ts-ignore
-    return state.profile.comments.data;
-  });
+  const [isFormOpen, setIsFormOpen] = useState<boolean | null>(false);
+  const [editedComments, setEditedComments] = useState<{
+    [key: number]: boolean;
+  }>({});
 
-  console.log(comments);
+  const isAuth = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const comments = useSelector(
+    //@ts-ignore
+    (state: RootState) => state.profile.comments.data
+  );
+  const currentUserEmail = useSelector(
+    (state: RootState) => state.profile.email
+  );
 
   const {
     register,
@@ -54,38 +56,42 @@ export const HomePage = () => {
   });
 
   useEffect(() => {
-    if (!isAuth) {
-      setIsFormOpen(false);
-    }
-  }, [isAuth]);
-
-  useEffect(() => {
-    dispatch(fetchProfileThunk());
+    dispatch(fetchCommentsThunk());
   }, []);
 
   useEffect(() => {
-    dispatch(fetchCommentsThunk());
+    const storedEditedComments = JSON.parse(
+      localStorage.getItem("editedComments") || "{}"
+    );
+    setEditedComments(storedEditedComments);
   }, []);
 
   const onSubmit = (data: { text: string }) => {
     if (editId !== null) {
-      dispatch(editCommentThunk({ id: editId, text: data.text }));
+      dispatch(editCommentThunk({ id: editId, text: data.text })).then(() => {
+        const updatedComments = { ...editedComments, [editId]: true };
+        setEditedComments(updatedComments);
+        localStorage.setItem("editedComments", JSON.stringify(updatedComments));
+        dispatch(fetchCommentsThunk());
+        setIsFormOpen(false);
+      });
+      setEditId(null);
     } else {
-      dispatch(commentThunk(data));
+      dispatch(commentThunk(data)).then(() => {
+        dispatch(fetchCommentsThunk());
+        setIsFormOpen(false);
+      });
     }
     reset();
-    setEditId(null);
-    setIsFormOpen(false);
   };
 
   const onEdit = (id: number | null, text: string) => {
     setEditId(id);
     setValue("text", text);
-    setIsFormOpen(true);
   };
 
   const onDelete = (id: number) => {
-    dispatch(deleteCommentThunk(id));
+    dispatch(deleteCommentThunk(id)).then(() => dispatch(fetchCommentsThunk()));
     setDeleteId(null);
   };
 
@@ -154,14 +160,15 @@ export const HomePage = () => {
 
       {comments &&
         comments.map((el: any) => {
-            const { id, text, createdAt, user, parentId } = el;
-            console.log(createdAt)
+          const { id, text, createdAt, user } = el;
+          const isCurrentUser = isAuth && currentUserEmail === user.email;
           const date =
             createdAt &&
             format(
               toZonedTime(new Date(createdAt), "Europe/Kiev"),
               "dd.MM.yy HH:mm"
             );
+
           return (
             <Paper
               key={id}
@@ -190,56 +197,80 @@ export const HomePage = () => {
                     style={{ borderRadius: "50%", marginRight: 10 }}
                   />
                   <Typography
-                    sx={{ marginRight: "5px" }}
+                    sx={{ marginRight: "5px", fontWeight: "bold" }}
                     variant="caption"
-                    color="textSecondary"
+                    color="#000"
                   >
                     {user.username}
                   </Typography>
                   <Typography variant="caption" color="textSecondary">
                     {date}
+                    {editedComments[id] && (
+                      <Typography variant="caption" color="textSecondary">
+                        {" "}
+                        (edited)
+                      </Typography>
+                    )}
                   </Typography>
                 </Box>
-                <Box>
-                  <IconButton
-                    size="small"
-                    onClick={() => {
-                      if (isAuth) {
-                        onEdit(id, text);
-                      } else {
-                        toast.error("Sign-in first, please", { style });
-                      }
+
+                {isCurrentUser && (
+                  <Box>
+                    <IconButton size="small" onClick={() => onEdit(id, text)}>
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton size="small" onClick={() => setDeleteId(id)}>
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                )}
+              </Box>
+
+              {editId === id ? (
+                <form onSubmit={handleSubmit(onSubmit)}>
+                  <TextField
+                    variant="outlined"
+                    fullWidth
+                    multiline
+                    rows={3}
+                    {...register("text")}
+                    error={!!errors.text}
+                    helperText={errors.text?.message}
+                    sx={{ mt: 1 }}
+                  />
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      mt: 1,
                     }}
                   >
-                    <EditIcon fontSize="small" />
-                  </IconButton>
+                    <Button variant="outlined" onClick={() => setEditId(null)}>
+                      Cancel
+                    </Button>
+                    <Button variant="contained" color="primary" type="submit">
+                      Save Changes
+                    </Button>
+                  </Box>
+                </form>
+              ) : (
+                <Typography sx={{ mt: 1, wordBreak: "break-word" }}>
+                  {text}
+                </Typography>
+              )}
+
+              {isAuth && (
+                <Box
+                  sx={{ display: "flex", justifyContent: "flex-end", mt: 1 }}
+                >
                   <IconButton
                     size="small"
-                    onClick={() => {
-                      if (isAuth) {
-                        setDeleteId(id);
-                      } else {
-                        toast.error("Sign-in first, please", { style });
-                      }
-                    }}
+                    onClick={() => console.log("Reply to", id)}
                   >
-                    <DeleteIcon fontSize="small" />
+                    <ReplyIcon fontSize="small" />
                   </IconButton>
                 </Box>
-              </Box>
-
-              <Typography sx={{ mt: 1, wordBreak: "break-word" }}>
-                {text}
-              </Typography>
-
-              <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1 }}>
-                <IconButton
-                  size="small"
-                  onClick={() => console.log("Reply to", parentId)}
-                >
-                  <ReplyIcon fontSize="small" />
-                </IconButton>
-              </Box>
+              )}
             </Paper>
           );
         })}

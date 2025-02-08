@@ -1,4 +1,11 @@
-import { AppBar, Box, Button, Toolbar, Typography } from "@mui/material";
+import {
+  AppBar,
+  Box,
+  Button,
+  Toolbar,
+  Typography,
+  Divider,
+} from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { AppDispatch, RootState } from "../../redux/store";
@@ -40,57 +47,42 @@ export const Header = () => {
           width: "100%",
         }}
       >
-        <Box
-          sx={{
-            width: 18,
-            height: 18,
-            borderRadius: "50%",
-            backgroundColor: isAuth ? "#58ec02c8" : "#3b8d0cc7",
-          }}
-        />
-        {isAuth ? (
-          <Typography variant="h6" color="inherit" sx={{ marginLeft: "1%" }}>
-            {username}
-          </Typography>
-        ) : null}
-        <Box sx={{ flexGrow: 1, textAlign: "center" }}>
-          <Typography variant="h6" color="inherit">
-            <div>COMMENTS</div>
-          </Typography>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Box
+            sx={{
+              width: 18,
+              height: 18,
+              borderRadius: "50%",
+              backgroundColor: isAuth ? "#58ec02c8" : "#3b8d0cc7",
+              marginRight: 1,
+            }}
+          />
+          {isAuth && <Typography color="inherit">{username}</Typography>}
         </Box>
-        <Box
-          sx={{
-            flexGrow: 0,
-            textAlign: "center",
-            marginRight: "2%",
-            cursor: "pointer",
-          }}
-        >
-          <span onClick={() => navigate("/")}>
-            <HomeIcon />
-          </span>
-        </Box>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-            marginRight: "4%",
-          }}
-        >
-          {isAuth ? (
-            <Logout />
-          ) : (
-            <>
-              <Button color="inherit" onClick={() => navigate("/sign-in")}>
-                Sign In
-              </Button>
-              /
-              <Button color="inherit" onClick={() => navigate("/sign-up")}>
-                Sign Up
-              </Button>
-            </>
-          )}
+
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          {!isAuth ? (
+            <Box sx={{ cursor: "pointer" }} onClick={() => navigate("/")}>
+              <HomeIcon />
+            </Box>
+          ) : null}
+          <Box
+            sx={{ display: "flex", marginRight: "45px", alignItems: "center" }}
+          >
+            {isAuth ? (
+              <Logout />
+            ) : (
+              <>
+                <Button color="inherit" onClick={() => navigate("/sign-in")}>
+                  Sign In
+                </Button>
+                <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+                <Button color="inherit" onClick={() => navigate("/sign-up")}>
+                  Sign Up
+                </Button>
+              </>
+            )}
+          </Box>
         </Box>
       </Toolbar>
     </AppBar>

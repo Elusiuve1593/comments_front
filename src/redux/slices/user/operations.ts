@@ -14,14 +14,20 @@ import { handleAxiosError } from "../../../common/errors-handler/errors-handler"
 
 export const fetchCommentsThunk = createAsyncThunk(
   "profile/fetchComments",
-  async (_, { dispatch, rejectWithValue }) => {
+  async (
+    { page, limit }: { page: number; limit: number },
+    { dispatch, rejectWithValue }
+  ) => {
     try {
       const res = await axiosInstance.get<Comment[]>(
-        `${import.meta.env.VITE_API_URL}/comments?page=1&limit=25`
+        `${import.meta.env.VITE_API_URL}/comments?page=${page}&limit=${limit}`
       );
+
       dispatch(fetchComment({ data: res.data }));
+      return res;
     } catch (err) {
-      console.error(err, rejectWithValue);
+      console.error(err);
+      return rejectWithValue(err);
     }
   }
 );

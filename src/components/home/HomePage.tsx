@@ -35,6 +35,8 @@ export const HomePage = () => {
   const [editedComments, setEditedComments] = useState<{
     [key: number]: boolean;
   }>({});
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
 
   const isAuth = useSelector((state: RootState) => state.auth.isAuthenticated);
   const comments = useSelector(
@@ -56,8 +58,18 @@ export const HomePage = () => {
   });
 
   useEffect(() => {
-    dispatch(fetchCommentsThunk());
-  }, []);
+    const fetchData = async () => {
+      const res = await dispatch(
+        fetchCommentsThunk({ page: currentPage, limit: 4 })
+      );
+      if (res.payload) {
+        //@ts-ignore
+        setTotalPages(res.payload.data.totalPages);
+      }
+    };
+
+    fetchData();
+  }, [currentPage, dispatch]);
 
   useEffect(() => {
     const storedEditedComments = JSON.parse(
@@ -72,13 +84,13 @@ export const HomePage = () => {
         const updatedComments = { ...editedComments, [editId]: true };
         setEditedComments(updatedComments);
         localStorage.setItem("editedComments", JSON.stringify(updatedComments));
-        dispatch(fetchCommentsThunk());
+        dispatch(fetchCommentsThunk({ page: currentPage, limit: 25 }));
         setIsFormOpen(false);
       });
       setEditId(null);
     } else {
       dispatch(commentThunk(data)).then(() => {
-        dispatch(fetchCommentsThunk());
+        dispatch(fetchCommentsThunk({ page: currentPage, limit: 25 }));
         setIsFormOpen(false);
       });
     }
@@ -91,8 +103,14 @@ export const HomePage = () => {
   };
 
   const onDelete = (id: number) => {
-    dispatch(deleteCommentThunk(id)).then(() => dispatch(fetchCommentsThunk()));
+    dispatch(deleteCommentThunk(id)).then(() =>
+      dispatch(fetchCommentsThunk({ page: currentPage, limit: 25 }))
+    );
     setDeleteId(null);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
   return (
@@ -274,6 +292,55 @@ export const HomePage = () => {
             </Paper>
           );
         })}
+
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          marginTop: 3,
+          gap: 2,
+        }}
+      >
+        <Button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          sx={{
+            padding: "6px 12px",
+            fontWeight: "bold",
+            textTransform: "none",
+            borderRadius: 2,
+            backgroundColor: currentPage === 1 ? "grey.300" : "primary.main",
+            color: currentPage === 1 ? "text.secondary" : "white",
+            "&:hover": {
+              backgroundColor: "primary.dark",
+            },
+          }}
+        >
+          Previous
+        </Button>
+        <Typography sx={{ fontSize: "1rem", fontWeight: "500" }}>
+          Page {currentPage} of {totalPages}
+        </Typography>
+        <Button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          sx={{
+            padding: "6px 12px",
+            fontWeight: "bold",
+            textTransform: "none",
+            borderRadius: 2,
+            backgroundColor:
+              currentPage === totalPages ? "grey.300" : "primary.main",
+            color: currentPage === totalPages ? "text.secondary" : "white",
+            "&:hover": {
+              backgroundColor: "primary.dark",
+            },
+          }}
+        >
+          Next
+        </Button>
+      </Box>
 
       <Dialog open={deleteId !== null} onClose={() => setDeleteId(null)}>
         <DialogTitle>Are you sure you want to delete this comment?</DialogTitle>

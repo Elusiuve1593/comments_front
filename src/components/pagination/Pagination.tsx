@@ -1,16 +1,21 @@
-import { Box, Button, Typography } from "@mui/material"
+import { Box, Button, Typography } from "@mui/material";
 
 interface PaginationProps {
-    comments: any
-    handlePageChange: (page: number) => void
-    currentPage: number
-    totalPages: number
+  comments: any;
+  handlePageChange: (page: number) => void;
+  currentPage: number;
+  totalPages: number;
 }
 
-export const Pagination = ({comments, handlePageChange, currentPage, totalPages}:PaginationProps) => {
-    return (
-        <>
-             {comments && comments.length > 0 && (
+export const Pagination = ({
+  comments,
+  handlePageChange,
+  currentPage,
+  totalPages,
+}: PaginationProps) => {
+  return (
+    <>
+      {comments && comments.length > 0 && (
         <Box
           sx={{
             display: "flex",
@@ -60,6 +65,6 @@ export const Pagination = ({comments, handlePageChange, currentPage, totalPages}
           </Button>
         </Box>
       )}
-        </>
-    )
-}
+    </>
+  );
+};

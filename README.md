@@ -7,6 +7,19 @@ Currently, two official plugins are available:
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
 - [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
+## Configuration and Running the App
+
+To get the application running, follow these steps:
+
+1. **Set up environment variables**  
+   Copy the environment variables from the `env.example` file and create a new `.env` file in your project root with the necessary configuration values.
+
+2. **Install application dependencies**  
+   Install all the necessary dependencies for the application:
+   ```bash
+   npm install
+   ```
+
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:

@@ -1,4 +1,4 @@
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface Comment {
   id: number | null;
@@ -13,6 +13,7 @@ export interface ProfileInterface {
   email: string;
   password: string;
   comments: Comment[];
+  replies: Comment[];
 }
 
 const initialState: ProfileInterface = {
@@ -28,6 +29,7 @@ const initialState: ProfileInterface = {
       createdAt: "",
     },
   ],
+  replies: [],
 };
 
 const profileSlice = createSlice({
@@ -44,7 +46,6 @@ const profileSlice = createSlice({
       state.comments.push(action.payload.data);
     },
     editComment(state, action: PayloadAction<{ data: Comment }>) {
-      console.log(action.payload.data)
       state.comments = state.comments.map((el: Comment) =>
         el.id === action.payload.data.id
           ? { ...el, ...action.payload.data }

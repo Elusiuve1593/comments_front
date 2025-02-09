@@ -2,6 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../axios-interceptor";
 import {
   addComment,
+  
   Comment,
   deleteComment,
   editComment,
@@ -15,7 +16,7 @@ import { handleAxiosError } from "../../../common/errors-handler/errors-handler"
 export const fetchCommentsThunk = createAsyncThunk(
   "profile/fetchComments",
   async (
-    { page, limit }: { page: number; limit: number },
+    { page, limit }: { page?: number; limit?: number },
     { dispatch, rejectWithValue }
   ) => {
     try {
@@ -46,25 +47,25 @@ export const fetchProfileThunk = createAsyncThunk(
   }
 );
 
-export const commentThunk = createAsyncThunk<void, { text: string }>(
-  "profile/addComment",
-  async (data, { dispatch, rejectWithValue }) => {
-    try {
-      dispatch(isLoading({ setPreloading: true }));
+export const commentThunk = createAsyncThunk<
+  void,
+  { text: string; parentId?: number | null }
+>("profile/addComment", async (data, { dispatch, rejectWithValue }) => {
+  try {
+    dispatch(isLoading({ setPreloading: true }));
 
-      const res = await axiosInstance.post<Comment>(
-        `${import.meta.env.VITE_API_URL}/comments`,
-        data
-      );
+    const res = await axiosInstance.post<Comment>(
+      `${import.meta.env.VITE_API_URL}/comments`,
+      data
+    );
 
-      dispatch(addComment({ data: res.data }));
-    } catch (err: any) {
-      handleAxiosError(err, rejectWithValue);
-    } finally {
-      dispatch(isLoading({ setPreloading: false }));
-    }
+    dispatch(addComment({ data: res.data }));
+  } catch (err: any) {
+    handleAxiosError(err, rejectWithValue);
+  } finally {
+    dispatch(isLoading({ setPreloading: false }));
   }
-);
+});
 
 export const editCommentThunk = createAsyncThunk<void, any>(
   "profile/editComment",
@@ -99,3 +100,6 @@ export const deleteCommentThunk = createAsyncThunk(
     }
   }
 );
+function fetchReply(arg0: { data: Comment[] }): any {
+  throw new Error("Function not implemented.");
+}

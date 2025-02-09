@@ -11,6 +11,13 @@ const reducer = {
 
 const store = configureStore({
   reducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ["profile/fetchComments/fulfilled"],
+        ignoredPaths: ["payload.headers"],
+      },
+    }),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

@@ -26,8 +26,16 @@ import {
 } from "../../redux/slices/user/operations";
 import { AppDispatch, RootState } from "../../redux/store";
 import { commentSchema } from "./yup/yup";
+import { useNavigate } from "react-router-dom";
+import { Pagination } from "../pagination/Pagination";
 
 export const HomePage = () => {
+  const navigate = useNavigate();
+
+  const onReplyClick = (id: number) => {
+    navigate(`/reply/${id}`);
+  };
+
   const dispatch = useDispatch<AppDispatch>();
   const [editId, setEditId] = useState<number | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -37,6 +45,8 @@ export const HomePage = () => {
   }>({});
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
+  const [replyToId, setReplyToId] = useState<number | null>(null);
+  const limit = 5;
 
   const isAuth = useSelector((state: RootState) => state.auth.isAuthenticated);
   const comments = useSelector(
@@ -46,6 +56,7 @@ export const HomePage = () => {
   const currentUserEmail = useSelector(
     (state: RootState) => state.profile.email
   );
+    
 
   const {
     register,
@@ -60,7 +71,7 @@ export const HomePage = () => {
   useEffect(() => {
     const fetchData = async () => {
       const res = await dispatch(
-        fetchCommentsThunk({ page: currentPage, limit: 5 })
+        fetchCommentsThunk({ page: currentPage, limit })
       );
       if (res.payload) {
         //@ts-ignore
@@ -78,17 +89,18 @@ export const HomePage = () => {
   }, []);
 
   const onSubmit = (data: { text: string }) => {
+    const commentData = {
+      text: data.text,
+      parentId: replyToId,
+    };
     if (editId !== null) {
       dispatch(editCommentThunk({ id: editId, text: data.text }))
-        .then(() =>
-          dispatch(fetchCommentsThunk({ page: currentPage, limit: 5 }))
-        )
+        .then(() => dispatch(fetchCommentsThunk({ page: currentPage, limit })))
         .then((res) => {
           //@ts-ignore
           setTotalPages(res.payload.data.totalPages);
         });
 
-      
       setEditedComments((prev) => {
         const updated = { ...prev, [editId]: true };
         localStorage.setItem("editedComments", JSON.stringify(updated));
@@ -97,18 +109,19 @@ export const HomePage = () => {
 
       setEditId(null);
     } else {
-      dispatch(commentThunk(data))
-        .then(() =>
-          dispatch(fetchCommentsThunk({ page: currentPage, limit: 5 }))
-        )
+      dispatch(commentThunk(commentData))
+        .then(() => dispatch(fetchCommentsThunk({ page: currentPage, limit })))
         .then((res) => {
           //@ts-ignore
           setTotalPages(res.payload.data.totalPages);
         });
     }
+
     reset();
+    setReplyToId(null);
     setIsFormOpen(false);
   };
+
 
   const onEdit = (id: number | null, text: string) => {
     setEditId(id);
@@ -117,7 +130,7 @@ export const HomePage = () => {
 
   const onDelete = (id: number) => {
     dispatch(deleteCommentThunk(id))
-      .then(() => dispatch(fetchCommentsThunk({ page: currentPage, limit: 5 })))
+      .then(() => dispatch(fetchCommentsThunk({ page: currentPage, limit })))
       .then((res) => {
         //@ts-ignore
         const newTotalPages = res.payload.data.totalPages;
@@ -132,6 +145,8 @@ export const HomePage = () => {
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
+    
+ 
 
   return (
     <Box sx={{ textAlign: "center", paddingTop: "80px" }}>
@@ -197,17 +212,18 @@ export const HomePage = () => {
       )}
 
       {comments &&
-        comments.map((el: any) => {
-          const { id, text, createdAt, user } = el;
+        comments.map((el: any) => { 
+          const { id, text, createdAt, user, replies } = el;
           const isCurrentUser = isAuth && currentUserEmail === user.email;
           const date =
             createdAt &&
             format(
               toZonedTime(new Date(createdAt), "Europe/Kiev"),
               "dd.MM.yy HH:mm"
-            );
-
-          return (
+              );
+            
+            return (
+                replies.length === 0 &&
             <Paper
               key={id}
               sx={{
@@ -301,10 +317,7 @@ export const HomePage = () => {
                 <Box
                   sx={{ display: "flex", justifyContent: "flex-end", mt: 1 }}
                 >
-                  <IconButton
-                    size="small"
-                    onClick={() => console.log("Reply to", id)}
-                  >
+                  <IconButton size="small" onClick={() => onReplyClick(id)}>
                     <ReplyIcon fontSize="small" />
                   </IconButton>
                 </Box>
@@ -313,56 +326,7 @@ export const HomePage = () => {
           );
         })}
 
-      {comments && comments.length > 0 && (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            marginTop: 3,
-            gap: 2,
-          }}
-        >
-          <Button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            sx={{
-              padding: "6px 12px",
-              fontWeight: "bold",
-              textTransform: "none",
-              borderRadius: 2,
-              backgroundColor: currentPage === 1 ? "grey.300" : "primary.main",
-              color: currentPage === 1 ? "text.secondary" : "white",
-              "&:hover": {
-                backgroundColor: "primary.dark",
-              },
-            }}
-          >
-            Prev
-          </Button>
-          <Typography sx={{ fontSize: "1rem", fontWeight: "500" }}>
-            Page {currentPage} of {totalPages}
-          </Typography>
-          <Button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            sx={{
-              padding: "6px 12px",
-              fontWeight: "bold",
-              textTransform: "none",
-              borderRadius: 2,
-              backgroundColor:
-                currentPage === totalPages ? "grey.300" : "primary.main",
-              color: currentPage === totalPages ? "text.secondary" : "white",
-              "&:hover": {
-                backgroundColor: "primary.dark",
-              },
-            }}
-          >
-            Next
-          </Button>
-        </Box>
-      )}
+          <Pagination comments={comments} handlePageChange={handlePageChange } currentPage={currentPage} totalPages={totalPages} />
 
       <Dialog open={deleteId !== null} onClose={() => setDeleteId(null)}>
         <DialogTitle>Are you sure you want to delete this comment?</DialogTitle>

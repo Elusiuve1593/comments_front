@@ -1,14 +1,14 @@
-import { Img, PreloaderContainer } from "./common/styles/styles";
-import { Route, Routes } from "react-router-dom";
-import { NotFoundPage } from "./components/not-found-page/NotFoundPage";
 import { useSelector } from "react-redux";
-import { RootState } from "./redux/store";
-import { SignUp } from "./components/auth/registration/SignUp";
-import { Login } from "./components/auth/login/Login";
-import pulse from "./common/preloader/Pulse.gif";
+import { Route, Routes } from "react-router-dom";
 import "./App.css";
-import { HomePage } from "./components/home/HomePage";
+import pulse from "./common/preloader/Pulse.gif";
+import { Img, PreloaderContainer } from "./common/styles/styles";
+import { Login } from "./components/auth/login/Login";
+import { SignUp } from "./components/auth/registration/SignUp";
 import { Header } from "./components/header/Header";
+import { HomePage } from "./components/home/HomePage";
+import { NotFoundPage } from "./components/not-found-page/NotFoundPage";
+import { RootState } from "./redux/store";
 
 function App() {
   const isLoading: boolean = useSelector(
@@ -29,6 +29,7 @@ function App() {
         <Route path="/sign-up" element={<SignUp />}></Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+    
     </div>
   );
 }

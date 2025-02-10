@@ -11,14 +11,14 @@ Currently, two official plugins are available:
 
 To get the application running, follow these steps:
 
-1. **Set up environment variables**  
-   Copy the environment variables from the `env.example` file and create a new `.env` file in your project root with the necessary configuration values.
-
-2. **Install application dependencies**  
+1. **Install application dependencies**  
    Install all the necessary dependencies for the application:
    ```bash
    npm install
    ```
+
+2. **Set up environment variables**  
+   Copy the environment variables from the `env.example` file and create a new `.env` file in your project root with the necessary configuration values.
 
 ## Expanding the ESLint configuration
 

@@ -2,7 +2,6 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../axios-interceptor";
 import {
   addComment,
-  
   Comment,
   deleteComment,
   editComment,
@@ -100,6 +99,3 @@ export const deleteCommentThunk = createAsyncThunk(
     }
   }
 );
-function fetchReply(arg0: { data: Comment[] }): any {
-  throw new Error("Function not implemented.");
-}

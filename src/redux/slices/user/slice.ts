@@ -39,7 +39,7 @@ const profileSlice = createSlice({
     updatePhoto(state, action: PayloadAction<{ photoUrl: string }>) {
       state.avatar = action.payload.photoUrl;
     },
-    setUser(state, action: PayloadAction<{ user: ProfileInterface }>) {
+    setUser(_, action: PayloadAction<{ user: ProfileInterface }>) {
       return action.payload.user;
     },
     addComment(state, action: PayloadAction<{ data: Comment }>) {
